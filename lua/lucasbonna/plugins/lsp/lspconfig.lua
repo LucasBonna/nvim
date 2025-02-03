@@ -2,30 +2,24 @@ return {
   "neovim/nvim-lspconfig",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
-    { "antosha417/nvim-lsp-file-operations", config = true },
+    "saghen/blink.cmp",
+    {"antosha417/nvim-lsp-file-operations", config= true },
     { "folke/neodev.nvim", opts = {} },
+    "catppuccin/nvim", -- Adicionando dependência do Catppuccin
   },
   config = function()
-    -- import lspconfig plugin
     local lspconfig = require("lspconfig")
 
-    -- import mason_lspconfig plugin
     local mason_lspconfig = require("mason-lspconfig")
 
-    -- import cmp-nvim-lsp plugin
-    local cmp_nvim_lsp = require("cmp_nvim_lsp")
-
-    local keymap = vim.keymap -- for conciseness
+    local keymap = vim.keymap
 
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-      callback = function(ev)
-        -- Buffer local mappings.
-        -- See `:help vim.lsp.*` for documentation on any of the below functions
-        local opts = { buffer = ev.buf, silent = true }
+      callback = function (ev)
 
-        -- set keybinds
+        local opts = { buffer = ev.buffer, silent = true }
+
         opts.desc = "Show LSP references"
         keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
 
@@ -47,90 +41,196 @@ return {
         opts.desc = "Smart rename"
         keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts) -- smart rename
 
-        opts.desc = "Show buffer diagnostics"
-        keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show  diagnostics for file
-
-        opts.desc = "Show line diagnostics"
-        keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
-
-        opts.desc = "Go to previous diagnostic"
-        keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
-
-        opts.desc = "Go to next diagnostic"
-        keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
-
         opts.desc = "Show documentation for what is under cursor"
         keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 
         opts.desc = "Restart LSP"
         keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
-      end,
+      end
     })
 
-    -- used to enable autocompletion (assign to every lsp server config)
-    local capabilities = cmp_nvim_lsp.default_capabilities()
+    vim.lsp.buf.hover = function()
+      return
+    end
 
-    -- Change the Diagnostic symbols in the sign column (gutter)
-    -- (not in youtube nvim video)
-    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+    vim.api.nvim_create_autocmd("CompleteDone", {
+      callback = function()
+        -- Disable hover temporarily
+        vim.lsp.buf.hover = function() end
+
+        -- Restore hover after a short delay
+        vim.defer_fn(function()
+          vim.lsp.buf.hover = vim.lsp.buf.hover  -- Restore original function
+        end, 100)
+      end
+    })
+
+    local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+     local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
     for type, icon in pairs(signs) do
       local hl = "DiagnosticSign" .. type
       vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
     end
 
-    mason_lspconfig.setup_handlers({
-      -- default handler for installed servers
-      function(server_name)
-        lspconfig[server_name].setup({
-          capabilities = capabilities,
-        })
-      end,
-      ["svelte"] = function()
-        -- configure svelte server
-        lspconfig["svelte"].setup({
-          capabilities = capabilities,
-          on_attach = function(client, bufnr)
-            vim.api.nvim_create_autocmd("BufWritePost", {
-              pattern = { "*.js", "*.ts" },
-              callback = function(ctx)
-                -- Here use ctx.match instead of ctx.file
-                client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
-              end,
-            })
-          end,
-        })
-      end,
-      ["graphql"] = function()
-        -- configure graphql language server
-        lspconfig["graphql"].setup({
-          capabilities = capabilities,
-          filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-        })
-      end,
-      ["emmet_ls"] = function()
-        -- configure emmet language server
-        lspconfig["emmet_ls"].setup({
-          capabilities = capabilities,
-          filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
-        })
-      end,
-      ["lua_ls"] = function()
-        -- configure lua server (with special settings)
-        lspconfig["lua_ls"].setup({
-          capabilities = capabilities,
-          settings = {
-            Lua = {
-              -- make the language server recognize "vim" global
-              diagnostics = {
-                globals = { "vim" },
+    local server_configs = {
+      -- Python configuration with pyright
+      pyright = {
+        settings = {
+          pyright = {
+            disableOrganizeImports = false,
+          },
+          python = {
+            analysis = {
+              diagnosticSeverityOverrides = {
+                reportUnknownMemberType = "none",
+                reportUnknownParameterType = "none",
+                reportUnknownVariableType = "none",
               },
-              completion = {
-                callSnippet = "Replace",
-              },
+              typeCheckingMode = "basic",
             },
           },
-        })
-      end,
+        },
+      },
+
+      -- TypeScript/JavaScript configuration with tsserver
+      tsserver = {
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
+          },
+          javascript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
+          },
+        },
+      },
+
+      -- Go configuration with gopls
+      gopls = {
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+            },
+            staticcheck = true,
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+            },
+          },
+        },
+      },
+
+      jdtls = {
+        settings = {
+          java = {
+            configuration = {
+              runtimes = {
+                {
+                  name = "JavaSE-17",
+                  path = "/usr/lib/jvm/java-17-openjdk",
+                },
+                {
+                  name = "JavaSE-21",
+                  path = "/usr/lib/jvm/java-21-openjdk",
+                },
+              }
+            },
+            eclipse = {
+              downloadSources = true,
+            },
+            maven = {
+              downloadSources = true,
+            },
+            implementationsCodeLens = {
+              enabled = true,
+            },
+            referencesCodeLens = {
+              enabled = true,
+            },
+            references = {
+              includeDecompiledSources = true,
+            },
+          },
+        },
+      },
+      -- Rust configuration with rust-analyzer
+      rust_analyzer = {
+        settings = {
+          ["rust-analyzer"] = {
+            diagnostics = {
+              enable = true,
+              experimental = {
+                enable = true,
+              },
+            },
+            inlayHints = {
+              enable = true,
+              showParameterNames = true,
+              parameterHintsPrefix = "<- ",
+              otherHintsPrefix = "=> ",
+            },
+            cargo = {
+              loadOutDirsFromCheck = true,
+            },
+            procMacro = {
+              enable = true,
+            },
+          },
+        },
+      },
+
+      -- Lua configuration with lua-language-server
+      lua_ls = {
+        settings = {
+          Lua = {
+            diagnostics = {
+              globals = { "vim" },
+            },
+            workspace = {
+              library = {
+                [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+                [vim.fn.expand("$HOME/.config/nvim/lua")] = true,
+              },
+              checkThirdParty = false,
+            },
+            completion = {
+              callSnippet = "Replace",
+            },
+            telemetry = {
+              enable = false,
+            },
+          },
+        },
+      },
+    }
+
+    mason_lspconfig.setup_handlers({
+      function(server_name)
+        local server_config = server_configs[server_name] or {}
+        server_config.capabilities = capabilities
+
+        lspconfig[server_name].setup(server_config)
+      end
     })
-  end,
+  end
 }

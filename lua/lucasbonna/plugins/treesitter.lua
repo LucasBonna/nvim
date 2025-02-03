@@ -4,23 +4,63 @@ return {
   build = ":TSUpdate",
   dependencies = {
     "windwp/nvim-ts-autotag",
+    "nvim-treesitter/nvim-treesitter-textobjects", -- Adiciona textobjects
   },
   config = function()
-    -- import nvim-treesitter plugin
+    -- Importar nvim-treesitter
     local treesitter = require("nvim-treesitter.configs")
 
-    -- configure treesitter
-    treesitter.setup({ -- enable syntax highlighting
+    -- Configurar treesitter
+    treesitter.setup({
+      -- Destaque de sintaxe
       highlight = {
         enable = true,
+        additional_vim_regex_highlighting = false,
       },
-      -- enable indentation
-      indent = { enable = true },
-      -- enable autotagging (w/ nvim-ts-autotag plugin)
+      -- Indentação automática
+      indent = {
+        enable = true,
+      },
+      -- Autotagging
       autotag = {
         enable = true,
       },
-      -- ensure these language parsers are installed
+      textobjects = {
+        select = {
+          enable = true,
+          lookahead = true,
+          keymaps = {
+            ["aa"] = "@parameter.outer",
+            ["ia"] = "@parameter.inner",
+            ["af"] = "@function.outer",
+            ["if"] = "@function.inner",
+            ["ac"] = "@class.outer",
+            ["ic"] = "@class.inner",
+          },
+        },
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]m"] = "@function.outer",
+            ["]]"] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[m"] = "@function.outer",
+            ["[["] = "@class.outer",
+          },
+        },
+        swap = {
+          enable = true,
+          swap_next = {
+            ["<leader>a"] = "@parameter.inner",
+          },
+          swap_previous = {
+            ["<leader>A"] = "@parameter.inner",
+          },
+        },
+      },
+      -- Assegurar que os parsers estejam instalados
       ensure_installed = {
         "json",
         "javascript",
@@ -43,15 +83,8 @@ return {
         "vimdoc",
         "c",
       },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
-      },
+      -- Instalação automática de parsers ausentes
+      auto_install = true,
     })
   end,
 }
