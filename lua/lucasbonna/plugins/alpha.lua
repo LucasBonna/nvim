@@ -21,6 +21,7 @@ return {
     dashboard.section.buttons.val = {
       dashboard.button("n", "  > New File", "<cmd>ene<CR>"),
       dashboard.button("e", "  > Toggle file explorer", "<cmd>NvimTreeToggle<CR>"),
+      dashboard.button("g", "󰊢  > Git Modified Files", "<cmd>Telescope git_status<CR>"),
       dashboard.button("f", "󰱼  > Find File", "<cmd>Telescope find_files<CR>"),
       dashboard.button("s", "  > Find Word", "<cmd>Telescope live_grep<CR>"),
       dashboard.button("r", "󰁯  > Restore Session For Current Directory", "<cmd>SessionRestore<CR>"),

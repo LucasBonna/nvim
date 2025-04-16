@@ -5,7 +5,7 @@ return {
     "saghen/blink.cmp",
     {"antosha417/nvim-lsp-file-operations", config= true },
     { "folke/neodev.nvim", opts = {} },
-    "catppuccin/nvim", -- Adicionando dependência do Catppuccin
+    -- "catppuccin/nvim", -- Adicionando dependência do Catppuccin
   },
   config = function()
     local lspconfig = require("lspconfig")
@@ -67,7 +67,7 @@ return {
 
     local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-     local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
     for type, icon in pairs(signs) do
       local hl = "DiagnosticSign" .. type
       vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
@@ -173,6 +173,7 @@ return {
           },
         },
       },
+      
       -- Rust configuration with rust-analyzer
       rust_analyzer = {
         settings = {
@@ -221,6 +222,59 @@ return {
             },
           },
         },
+      },
+      
+      -- ESLint configuration (para ESLint v9 com flat config)
+      eslint = {
+        settings = {
+          -- Configurações para ESLint v9
+          useESLintClass = true,
+          experimental = {
+            useFlatConfig = true
+          },
+          -- Configurações adicionais
+          codeAction = {
+            disableRuleComment = {
+              enable = true,
+              location = "separateLine"
+            },
+            showDocumentation = {
+              enable = true
+            }
+          },
+          codeActionOnSave = {
+            enable = false,
+            mode = "all"
+          },
+          format = true,
+          nodePath = "",
+          onIgnoredFiles = "off",
+          packageManager = "pnpm",
+          quiet = false,
+          rulesCustomizations = {},
+          run = "onType",
+          workingDirectory = {
+            mode = "location"
+          }
+        },
+        filetypes = {
+          "javascript",
+          "javascriptreact",
+          "javascript.jsx",
+          "typescript",
+          "typescriptreact",
+          "typescript.tsx",
+          "vue",
+          "svelte"
+        },
+        -- Definição personalizada de root_dir para encontrar o arquivo de configuração
+        root_dir = function(fname)
+          local util = require("lspconfig.util")
+          return util.find_git_ancestor(fname) or
+                 util.root_pattern("eslint.config.js", "eslint.config.mjs", "eslint.config.cjs")(fname) or
+                 util.root_pattern(".eslintrc.js", ".eslintrc.json", ".eslintrc.cjs", ".eslintrc")(fname) or
+                 vim.fn.getcwd()
+        end,
       },
     }
 

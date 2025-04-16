@@ -12,15 +12,20 @@ return {
     vim.cmd("colorscheme catppuccin-mocha")
   end
 }
-
--- Rose Pine
+--
+--
+-- -- Rose Pine
 -- return {
 -- 	"rose-pine/neovim",
 -- 	name = "rose-pine",
 --
 -- 	config = function()
 --     require("rose-pine").setup({
---       variant = "moon"
+--       variant = "moon",
+--       styles = {
+--         transparency = true,
+--       },
+--       integrations = { blink_cmp = true },
 --     })
 -- 		vim.cmd("colorscheme rose-pine")
 -- 	end
@@ -392,4 +397,21 @@ return {
 --       vim.api.nvim_command("colorscheme catppuccin")
 --     end,
 --   },
+--
+-- -- return {
+--   'olivercederborg/poimandres.nvim',
+--   lazy = false,
+--   priority = 1000,
+--   config = function()
+--     require('poimandres').setup {
+--       -- leave this setup function empty for default config
+--       -- or refer to the configuration section
+--       -- for configuration options
+--     }
+--   end,
+--
+--   -- optionally set the colorscheme within lazy config
+--   init = function()
+--     vim.cmd("colorscheme poimandres")
+--   end
 -- }
