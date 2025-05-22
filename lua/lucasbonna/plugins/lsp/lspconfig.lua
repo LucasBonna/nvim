@@ -9,15 +9,13 @@ return {
   },
   config = function()
     local lspconfig = require("lspconfig")
-
     local mason_lspconfig = require("mason-lspconfig")
-
     local keymap = vim.keymap
 
+    -- LspAttach autocommand for keymaps
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", {}),
       callback = function (ev)
-
         local opts = { buffer = ev.buffer, silent = true }
 
         opts.desc = "Show LSP references"
@@ -49,10 +47,12 @@ return {
       end
     })
 
+    -- Override hover function
     vim.lsp.buf.hover = function()
       return
     end
 
+    -- Autocommand to handle hover during completion
     vim.api.nvim_create_autocmd("CompleteDone", {
       callback = function()
         -- Disable hover temporarily
@@ -65,14 +65,17 @@ return {
       end
     })
 
-    local capabilities = require("blink.cmp").get_lsp_capabilities()
-
+    -- Define diagnostic signs
     local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
     for type, icon in pairs(signs) do
       local hl = "DiagnosticSign" .. type
       vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
     end
 
+    -- Get LSP capabilities from blink.cmp
+    local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+    -- Server configurations
     local server_configs = {
       -- Python configuration with pyright
       pyright = {
@@ -140,6 +143,7 @@ return {
         },
       },
 
+      -- Java configuration with jdtls
       jdtls = {
         settings = {
           java = {
@@ -173,7 +177,7 @@ return {
           },
         },
       },
-      
+
       -- Rust configuration with rust-analyzer
       rust_analyzer = {
         settings = {
@@ -223,16 +227,14 @@ return {
           },
         },
       },
-      
-      -- ESLint configuration (para ESLint v9 com flat config)
+
+      -- ESLint configuration (for ESLint v9 with flat config)
       eslint = {
         settings = {
-          -- Configurações para ESLint v9
           useESLintClass = true,
           experimental = {
             useFlatConfig = true
           },
-          -- Configurações adicionais
           codeAction = {
             disableRuleComment = {
               enable = true,
@@ -267,7 +269,6 @@ return {
           "vue",
           "svelte"
         },
-        -- Definição personalizada de root_dir para encontrar o arquivo de configuração
         root_dir = function(fname)
           local util = require("lspconfig.util")
           return util.find_git_ancestor(fname) or
@@ -278,13 +279,9 @@ return {
       },
     }
 
-    mason_lspconfig.setup_handlers({
-      function(server_name)
-        local server_config = server_configs[server_name] or {}
-        server_config.capabilities = capabilities
-
-        lspconfig[server_name].setup(server_config)
-      end
-    })
+    -- Configure LSP servers using vim.lsp.config
+    for server_name, config in pairs(server_configs) do
+      vim.lsp.config(server_name, vim.tbl_deep_extend("force", config, { capabilities = capabilities }))
+    end
   end
 }
