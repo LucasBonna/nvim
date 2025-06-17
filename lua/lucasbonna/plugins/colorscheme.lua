@@ -1,35 +1,32 @@
 -- Catppuccin
-return {
-  "catppuccin/nvim",
-  name = "catppuccin",
-  priority = 1000,
-  opts = {
-    integrations = { blink_cmp = true },
-  },
-
-  -- optionally set the colorscheme within lazy config
-  init = function()
-    vim.cmd("colorscheme catppuccin-mocha")
-  end
-}
---
---
--- -- Rose Pine
 -- return {
--- 	"rose-pine/neovim",
--- 	name = "rose-pine",
+--   "catppuccin/nvim",
+--   name = "catppuccin",
+--   priority = 1000,
+--   opts = {
+--     integrations = { blink_cmp = true },
+--   },
 --
--- 	config = function()
---     require("rose-pine").setup({
---       variant = "moon",
---       styles = {
---         transparency = true,
---       },
---       integrations = { blink_cmp = true },
---     })
--- 		vim.cmd("colorscheme rose-pine")
--- 	end
+--   -- optionally set the colorscheme within lazy config
+--   init = function()
+--     vim.cmd("colorscheme catppuccin-mocha")
+--   end
 -- }
+
+
+-- Rose Pine
+return {
+	"rose-pine/neovim",
+	name = "rose-pine",
+
+	config = function()
+    require("rose-pine").setup({
+      variant = "moon",
+      integrations = { blink_cmp = true },
+    })
+		vim.cmd("colorscheme rose-pine")
+	end
+}
 
 -- Different Cattpuccin
 -- return {
