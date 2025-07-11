@@ -7,8 +7,25 @@ return {
     "nvim-treesitter/nvim-treesitter-textobjects", -- Adiciona textobjects
   },
   config = function()
+    vim.filetype.add({
+      pattern = {
+        [".*%.blade%.php"] = "blade",
+      },
+    })
+
     -- Importar nvim-treesitter
     local treesitter = require("nvim-treesitter.configs")
+
+    local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+
+    parser_configs.blade = {
+      install_info = {
+        url = "https://github.com/EmranMR/tree-sitter-blade",
+        files = { "src/parser.c" },
+        branch = "main",
+      },
+      filetype = "blade",
+    }
 
     -- Configurar treesitter
     treesitter.setup({
@@ -62,6 +79,7 @@ return {
       },
       -- Assegurar que os parsers estejam instalados
       ensure_installed = {
+        "blade",
         "json",
         "javascript",
         "typescript",

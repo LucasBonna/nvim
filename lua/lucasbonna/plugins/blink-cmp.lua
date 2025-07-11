@@ -14,7 +14,7 @@ return {
       ['<Tab>'] = { 'select_next', 'fallback' },
       ['<C-p>'] = { 'scroll_documentation_up', 'fallback' },
       ['<C-n>'] = { 'scroll_documentation_down', 'fallback' },
-      ['<C-d>'] = { 'show', 'show_documentation', 'hide_documentation'},
+      ['<S-K>'] = { 'show', 'show_documentation', 'hide_documentation'},
     },
     completion = {
       menu = {

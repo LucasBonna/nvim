@@ -27,7 +27,7 @@ return {
 		vim.cmd("colorscheme rose-pine")
 	end
 }
-
+--
 -- Different Cattpuccin
 -- return {
 --   {
@@ -394,6 +394,7 @@ return {
 --       vim.api.nvim_command("colorscheme catppuccin")
 --     end,
 --   },
+-- }
 --
 -- -- return {
 --   'olivercederborg/poimandres.nvim',
