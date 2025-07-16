@@ -36,6 +36,7 @@ return {
         "emmet_ls",
         "prismals",
         "pyright",
+        "jdtls",
       },
     })
 
@@ -48,6 +49,7 @@ return {
         "pylint",
         "eslint_d",
         "eslint",
+        "java-debug-adapter",
       },
     })
   end,

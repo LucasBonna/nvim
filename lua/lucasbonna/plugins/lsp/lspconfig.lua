@@ -155,6 +155,39 @@ return {
             or vim.fn.getcwd()
         end,
       },
+      jdtls = {
+        settings = {
+          java = {
+            configuration = {
+              runtimes = {
+                {
+                  name = "JavaSE-17",
+                  path = "/usr/lib/jvm/java-17-openjdk",
+                },
+                {
+                  name = "JavaSE-21",
+                  path = "/usr/lib/jvm/java-21-openjdk",
+                },
+              }
+            },
+            eclipse = {
+              downloadSources = true,
+            },
+            maven = {
+              downloadSources = true,
+            },
+            implementationsCodeLens = {
+              enabled = true,
+            },
+            referencesCodeLens = {
+              enabled = true,
+            },
+            references = {
+              includeDecompiledSources = true,
+            },
+          },
+        },
+      },
     }
 
     -- Setup mason-lspconfig to install servers
@@ -162,7 +195,7 @@ return {
       ensure_installed = {
         "html", "cssls", "tailwindcss", "svelte",
         "lua_ls", "graphql", "emmet_ls", "prismals",
-        "pyright", "gopls"
+        "pyright", "gopls", "jdtls"
       }
     })
 
