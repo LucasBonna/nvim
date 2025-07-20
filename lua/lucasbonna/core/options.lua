@@ -36,6 +36,6 @@ opt.splitbelow = true -- split horizontal window to the bottom
 -- turn off swapfile
 opt.swapfile = false
 
--- vim.opt.guicursor = "n-v-c:block-Cursor"
+vim.opt.guicursor = "n-v-c:block-Cursor"
 
 vim.opt.scrolloff = 10
