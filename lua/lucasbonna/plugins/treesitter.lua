@@ -1,84 +1,34 @@
+-- nvim-treesitter (branch `main`): a API antiga (`nvim-treesitter.configs`) não existe mais.
+-- Highlight/indent/folds agora são ativados via `vim.treesitter.start()` num autocmd FileType.
 return {
-  "nvim-treesitter/nvim-treesitter",
-  event = { "BufReadPre", "BufNewFile" },
-  build = ":TSUpdate",
-  dependencies = {
-    "windwp/nvim-ts-autotag",
-    "nvim-treesitter/nvim-treesitter-textobjects", -- Adiciona textobjects
-  },
-  config = function()
-    vim.filetype.add({
-      pattern = {
-        [".*%.blade%.php"] = "blade",
-      },
-    })
-
-    -- Importar nvim-treesitter
-    local treesitter = require("nvim-treesitter.configs")
-
-    local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
-
-    parser_configs.blade = {
-      install_info = {
-        url = "https://github.com/EmranMR/tree-sitter-blade",
-        files = { "src/parser.c" },
-        branch = "main",
-      },
-      filetype = "blade",
-    }
-
-    -- Configurar treesitter
-    treesitter.setup({
-      -- Destaque de sintaxe
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = false,
-      },
-      -- Indentação automática
-      indent = {
-        enable = true,
-      },
-      -- Autotagging
-      autotag = {
-        enable = true,
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ["aa"] = "@parameter.outer",
-            ["ia"] = "@parameter.inner",
-            ["af"] = "@function.outer",
-            ["if"] = "@function.inner",
-            ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
-          },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false, -- o plugin não suporta lazy-loading
+    build = ":TSUpdate",
+    config = function()
+      vim.filetype.add({
+        pattern = {
+          [".*%.blade%.php"] = "blade",
         },
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            ["]m"] = "@function.outer",
-            ["]]"] = "@class.outer",
-          },
-          goto_previous_start = {
-            ["[m"] = "@function.outer",
-            ["[["] = "@class.outer",
-          },
-        },
-        swap = {
-          enable = true,
-          swap_next = {
-            ["<leader>a"] = "@parameter.inner",
-          },
-          swap_previous = {
-            ["<leader>A"] = "@parameter.inner",
-          },
-        },
-      },
-      -- Assegurar que os parsers estejam instalados
-      ensure_installed = {
+      })
+
+      -- parser customizado (blade) precisa ser registrado antes do :TSUpdate
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TSUpdate",
+        callback = function()
+          require("nvim-treesitter.parsers").blade = {
+            install_info = {
+              url = "https://github.com/EmranMR/tree-sitter-blade",
+              branch = "main",
+            },
+          }
+        end,
+      })
+
+      require("nvim-treesitter").setup({})
+
+      local languages = {
         "blade",
         "json",
         "javascript",
@@ -100,9 +50,36 @@ return {
         "query",
         "vimdoc",
         "c",
-      },
-      -- Instalação automática de parsers ausentes
-      auto_install = true,
-    })
-  end,
+        "python",
+        "go",
+      }
+
+      require("nvim-treesitter").install(languages)
+
+      -- Ativa highlight + indent para qualquer filetype que tenha parser instalado.
+      -- Se o parser ainda não existe, tenta instalar (equivalente ao antigo `auto_install`).
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true }),
+        callback = function(ev)
+          local lang = vim.treesitter.language.get_lang(ev.match)
+          if not lang then
+            return
+          end
+          if not vim.treesitter.language.add(lang) then
+            if vim.list_contains(require("nvim-treesitter").get_available(), lang) then
+              require("nvim-treesitter").install(lang)
+            end
+            return
+          end
+          pcall(vim.treesitter.start, ev.buf, lang)
+          vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+      })
+    end,
+  },
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {},
+  },
 }

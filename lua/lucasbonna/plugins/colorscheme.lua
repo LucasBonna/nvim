@@ -12,36 +12,40 @@
 --     vim.cmd("colorscheme catppuccin-mocha")
 --   end
 -- }
-return {
-  "rebelot/kanagawa.nvim",
-  name = "kanagawa",
-  config = function ()
-    require("kanagawa").setup({
-      integrations = { blink_cmp = true },
-    })
- 		vim.cmd("colorscheme kanagawa-dragon")
-  end
-}
+
+-- return {
+--   "rebelot/kanagawa.nvim",
+--   name = "kanagawa",
+--   config = function ()
+--     require("kanagawa").setup({
+--       integrations = { blink_cmp = true },
+--     })
+--  		vim.cmd("colorscheme kanagawa-dragon")
+--   end
+-- }
+
 
 -- Rose Pine
--- return {
--- 	"rose-pine/neovim",
--- 	name = "rose-pine",
---
--- 	config = function()
---     require("rose-pine").setup({
---       variant = "moon",
---       integrations = { blink_cmp = true },
---       highlight_groups = {
---         -- Comment = { italic = false },
---         -- Variable = { italic = false },
---         -- Propertie = { italic = false },
---         -- Function = { italic = false }
---       }
---     })
--- 		vim.cmd("colorscheme rose-pine")
--- 	end
--- }
+return {
+	"rose-pine/neovim",
+	name = "rose-pine",
+	lazy = false,
+	priority = 1000, -- carrega antes dos outros plugins (lualine usa o tema "rose-pine")
+
+	config = function()
+    require("rose-pine").setup({
+      variant = "moon",
+      integrations = { blink_cmp = true },
+      highlight_groups = {
+        -- Comment = { italic = false },
+        -- Variable = { italic = false },
+        -- Propertie = { italic = false },
+        -- Function = { italic = false }
+      }
+    })
+		vim.cmd("colorscheme rose-pine")
+	end
+}
 
 -- Different Cattpuccin
 -- return {

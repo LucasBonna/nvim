@@ -3,6 +3,7 @@ return {
   dependencies = {
     "mason-org/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
+    "neovim/nvim-lspconfig", -- precisa estar no rtp antes do mason-lspconfig.setup()
   },
   config = function()
     -- import mason
@@ -36,7 +37,13 @@ return {
         "emmet_ls",
         "prismals",
         "pyright",
+        "gopls",
         "jdtls",
+      },
+      -- habilita automaticamente (vim.lsp.enable) os servers instalados;
+      -- jdtls fica de fora porque o nvim-jdtls já inicia o server para Java.
+      automatic_enable = {
+        exclude = { "jdtls" },
       },
     })
 
