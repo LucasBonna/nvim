@@ -1,6 +1,6 @@
 return {
   "nvim-telescope/telescope.nvim",
-  branch = "0.1.x",
+  branch = "master", -- 0.1.x está congelado e quebra o preview com o nvim-treesitter `main`
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
